@@ -1,5 +1,5 @@
 ### GOAL
-*Below description is taken from Coursera:*
+*Below description is taken from Coursera:*     
 The purpose of this project is to demonstrate your ability to collect, work with, and clean a data set. The goal is to prepare tidy data that can be used for later analysis. You will be graded by your peers on a series of yes/no questions related to the project. You will be required to submit: 1) a tidy data set as described below, 2) a link to a Github repository with your script for performing the analysis, and 3) a code book that describes the variables, the data, and any transformations or work that you performed to clean up the data called CodeBook.md. You should also include a README.md in the repo with your scripts. This repo explains how all of the scripts work and how they are connected.
 
 One of the most exciting areas in all of data science right now is wearable computing - see for example this article . Companies like Fitbit, Nike, and Jawbone Up are racing to develop the most advanced algorithms to attract new users. The data linked to from the course website represent data collected from the accelerometers from the Samsung Galaxy S smartphone. A full description is available at the site where the data was obtained:
@@ -95,43 +95,41 @@ combined_data <- rbind(test_data, train_data)
 
 ```{r eval=FALSE}
 colnames(combined_data) <- c("Subject ID", features[,2], "Activity Performed")
+
 ```
 
-9. Add an additional column to *combined_data* named *Activity* wherein it's the actual activity performed based from *activityLabels*.     
+9. Extract the measurements on the mean and standard deviation together with the *Subject ID* and *Activity* columns.     
 
 ```{r eval=FALSE}
-final_data <- merge(combined_data, activityLabels, by.x="Activity Performed", by.y="ActivityCode")
+mean_std_data <- combined_data[,grepl("[Mm]ean|std|Subject|Activity", colnames(combined_data))]
+
 ```
 
-10. Delete the *Activity Performed* column. Then, reorder the columns in *combined_data* such that *Subject ID* is the first column and *Activity* is the second column.     
+10. Add an additional column to *mean_std_data* named *Activity* where in it is the actual activity performed based from *activityLabels*.     
 
 ```{r eval=FALSE}
-final_data <- final_data[c(2, 564, 3:563)]
-```
-   
-11. Extract the measurements on the mean and store it onto the *mean_data* data frame.     
+tidy_data <- merge(mean_std_data, activityLabels, by.x="Activity Performed",
+                   by.y="ActivityCode")
 
-```{r eval=FALSE}
-mean_data <- final_data[,grepl("[Mm]ean", colnames(final_data))]
 ```
 
-12. Do the same for measurements on the standard deviation. Store it onto the *stdev_data* data frame.     
-
+11. Delete the *Activity Performed* column. Then, reorder the columns in *tidy_data* such that *Subject ID* is the first column and *Activity* is the second column.   
+  
 ```{r eval=FALSE}
-stdev_data <- final_data[,grepl("std", colnames(final_data))]
+tidy_data <- tidy_data[c(2, 89, 3:88)]
 ```
 
-13. Create another data frame *groupedmean_data* wherein it provides the average per *Subject ID* and *Activity* for each variable/column. 
+12. Create another data frame *groupedmean_data* wherein it provides the average of each variable per *Subject ID* and *Activity*.
 
 ```{r eval=FALSE}
-groupedmean_data <- aggregate(final_data, list(final_data[,1], final_data[,2]), mean, na.rm=TRUE, simplify=TRUE)
+groupedmean_data <- aggregate(tidy_data, list(tidy_data[,1], tidy_data[,2]), mean, na.rm=TRUE, simplify=TRUE)
 groupedmean_data <- groupedmean_data[-c(3,4)]
 colnames(groupedmean_data)[1] <- "Subject ID"
 colnames(groupedmean_data)[2] <- "Activity"
 
 ```
 
-14. Create a text file **output.txt** containing *groupedmean_data*.     
+123 Create a text file **output.txt** containing *groupedmean_data*.     
 
 ```{r eval=FALSE}
 write.table(groupedmean_data, "output.txt")

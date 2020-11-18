@@ -33,32 +33,33 @@ for (i in 2:length(train_files)) {
 
 #Merging the training and test data set into one
 #Changing the column names based on the features table
-#Updating the Activity column to be more descriptive
 combined_data <- rbind(test_data, train_data)
     #combined_data: df 10299x563
 colnames(combined_data) <- c("Subject ID", features[,2], "Activity Performed")
-final_data <- merge(combined_data, activityLabels, by.x="Activity Performed",
-                    by.y="ActivityCode")
-    #final_data: df 10299x564
-final_data <- final_data[c(2, 564, 3:563)]
-    #final_data: df 10299x563
 
- 
+
 
 #Extracting the measurements on the mean and standard deviation
-mean_data <- final_data[,grepl("[Mm]ean", colnames(final_data))]
-    #mean_data: df 10299x53
-stdev_data <- final_data[,grepl("std", colnames(final_data))]
-    #stdev_data: df 10299x33
+mean_std_data <- combined_data[,grepl("[Mm]ean|std|Subject|Activity", colnames(combined_data))]
+    #mean_std_data: df 10299x88
+
+
+
+#Updating the Activity column to be more descriptive
+tidy_data <- merge(mean_std_data, activityLabels, by.x="Activity Performed",
+                   by.y="ActivityCode")
+    #tidy_data: df 10299x89
+tidy_data <- tidy_data[c(2, 89, 3:88)]
+    #tidy_data: df 10299x88
 
 
 
 #Creating another data set with the average of each variable
 #for each activity and each subject.
-groupedmean_data <- aggregate(final_data, list(final_data[,1], final_data[,2]), mean, na.rm=TRUE, simplify=TRUE)
-    #groupedmean_data: df 180x565
+groupedmean_data <- aggregate(tidy_data, list(tidy_data[,1], tidy_data[,2]), mean, na.rm=TRUE, simplify=TRUE)
+    #groupedmean_data: df 180x88
 groupedmean_data <- groupedmean_data[-c(3,4)]
-    #groupedmean_data: df 180x563
+    #groupedmean_data: df 180x88
 colnames(groupedmean_data)[1] <- "Subject ID"
 colnames(groupedmean_data)[2] <- "Activity"
 write.table(groupedmean_data, "output.txt")
